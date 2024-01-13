@@ -18,7 +18,7 @@ import java.util.Set;
  * @param <N> the actual graph node type.
  * @param <W> the value type of arc weights.
  */
-public final class BidirectionalDijsktrasAlgorithm<N, W> {
+public final class BidirectionalDijkstrasAlgorithm<N, W> {
     
     /**
      * Searches for a shortest {@code source/target} path. Throws an 
@@ -112,11 +112,9 @@ public final class BidirectionalDijsktrasAlgorithm<N, W> {
                 if (settledB.contains(childNode)) {
                     W shortestPathUpperBound = 
                             weightFunction.sum(
-                                    weightFunction.sum(
-                                            distancesF.get(currentNodeF), 
-                                            weightFunction.getWeight(
-                                                    currentNodeF,
-                                                    childNode)), 
+                                    distancesF.get(currentNodeF),
+                                    weightFunction.getWeight(currentNodeF, 
+                                                             childNode),
                                     distancesB.get(childNode));
                     
                     if (scoreComparator.compare(mu, 
@@ -138,19 +136,19 @@ public final class BidirectionalDijsktrasAlgorithm<N, W> {
                      scoreComparator.compare(
                            distancesB.get(parentNode),        
                            weightFunction.sum(
-                                distancesF.get(currentNodeF),
+                                distancesB.get(currentNodeB),
                                 weightFunction.getWeight(parentNode, 
                                                          currentNodeB))) > 0) {
                     
                     W tentativeDistance = 
                             weightFunction.sum(
-                                    distancesF.get(currentNodeF), 
+                                    distancesB.get(currentNodeB), 
                                     weightFunction.getWeight(parentNode,
                                                              currentNodeB));
                     
-                    distancesF.put(parentNode, tentativeDistance);
-                    parentsF.put(parentNode, currentNodeF);
-                    queueF.add(new HeapNodeWrapper<>(tentativeDistance,
+                    distancesB.put(parentNode, tentativeDistance);
+                    parentsB.put(parentNode, currentNodeB);
+                    queueB.add(new HeapNodeWrapper<>(tentativeDistance,
                                                      parentNode,
                                                      scoreComparator));
                 } 
@@ -158,12 +156,10 @@ public final class BidirectionalDijsktrasAlgorithm<N, W> {
                 if (settledF.contains(parentNode)) {
                     W shortestPathUpperBound = 
                             weightFunction.sum(
-                                    weightFunction.sum(
-                                            distancesF.get(currentNodeF), 
-                                            weightFunction.getWeight(
-                                                    parentNode,
-                                                    currentNodeB)), 
-                                    distancesF.get(parentNode));
+                                    distancesF.get(parentNode),
+                                    weightFunction.getWeight(parentNode,
+                                                             currentNodeB),
+                                    distancesB.get(currentNodeB));
                     
                     if (scoreComparator.compare(mu, 
                                                 shortestPathUpperBound) > 0) {

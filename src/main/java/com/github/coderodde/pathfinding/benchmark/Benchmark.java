@@ -1,6 +1,6 @@
 package com.github.coderodde.pathfinding.benchmark;
 
-import com.github.coderodde.pathfinding.BidirectionalDijsktrasAlgorithm;
+import com.github.coderodde.pathfinding.BidirectionalDijkstrasAlgorithm;
 import com.github.coderodde.pathfinding.DijkstrasAlgorithm;
 import com.github.coderodde.pathfinding.NodeExpander;
 import com.github.coderodde.pathfinding.WeightFunction;
@@ -40,15 +40,15 @@ final class Benchmark {
         DijkstrasAlgorithm<DirectedGraphNode, Float> pathfinderDijkstra =
                 new DijkstrasAlgorithm<>();
         
-        BidirectionalDijsktrasAlgorithm<DirectedGraphNode, Float> 
+        BidirectionalDijkstrasAlgorithm<DirectedGraphNode, Float> 
                 pathfinderBidirectionalDijkstra = 
-                new BidirectionalDijsktrasAlgorithm<>();
+                new BidirectionalDijkstrasAlgorithm<>();
         
         NodeExpander<DirectedGraphNode> childNodeExpander = 
                 new DirectedGraphNodeChildrenExpander();
         
         NodeExpander<DirectedGraphNode> parentNodeExpander = 
-                new DirectedGraphNodeChildrenExpander();
+                new DirectedGraphNodeParentsExpander();
         
         DirectedGraphWeightFunction weightFunction = 
                 new DirectedGraphWeightFunction();
@@ -89,6 +89,11 @@ final class Benchmark {
             for (DirectedGraphNode node : pathDijkstra) {
                 System.out.println(node);
             }
+            
+            System.out.printf(
+                    "Path cost: %.3f\n", 
+                    computePathCost(pathDijkstra, weightFunction));
+            
         } else {
             System.out.println("Paths diagree!");
             System.out.println("Dijkstra's algorithm's path:");
@@ -97,11 +102,18 @@ final class Benchmark {
                 System.out.println(node);
             }
             
+            System.out.printf("Dijkstra's path cost: %.3f\n", 
+                              computePathCost(pathDijkstra, weightFunction));
+            
             System.out.println("Bidirectional Dijkstra's algorithm's path:");
             
             for (DirectedGraphNode node : pathBidirectionalDijkstra) {
                 System.out.println(node);
             }
+            
+            System.out.printf("Bidirectional Dijkstra's path cost: %.3f\n", 
+                              computePathCost(pathBidirectionalDijkstra, 
+                                              weightFunction));
         }
     }
     
@@ -119,6 +131,22 @@ final class Benchmark {
             return System.currentTimeMillis();
         }
     }
+    
+    private static float computePathCost(
+            List<DirectedGraphNode> path,
+            DirectedGraphWeightFunction weightFunction) {
+        float cost = 0.0f;
+        
+        for (int i = 0; i < path.size() - 1; i++) {
+            DirectedGraphNode tail = path.get(i);
+            DirectedGraphNode head = path.get(i + 1);
+            float arcWeight = weightFunction.getWeight(tail, head);
+            cost += arcWeight;
+        }
+        
+        return cost;
+    }
+    
     private static final class GraphData {
         private final List<DirectedGraphNode> graphNodes;
         private final DirectedGraphWeightFunction weightFunction;
@@ -221,10 +249,6 @@ final class DirectedGraphNode {
     
     DirectedGraphNode() {
         this.id = nodeIdCounter++;
-    }
-    
-    int getId() {
-        return id;
     }
     
     void addChild(DirectedGraphNode child, Float weight) {
