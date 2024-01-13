@@ -158,14 +158,6 @@ final class Benchmark {
             this.weightFunction = weightFunction;
         }
         
-        List<DirectedGraphNode> getGraphNodes() {
-            return graphNodes;
-        }
-        
-        DirectedGraphWeightFunction getWeightFunction() {
-            return weightFunction;
-        }
-        
         DirectedGraphNode getRandonNode(Random random) {
             return choose(graphNodes, random);
         }
